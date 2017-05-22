@@ -1,0 +1,10 @@
+{% trans %}Your reservation has been confirmed.{% endtrans %}
+
+{% include "mail/_reservation_data.jinja" %}
+{% trans %}
+The reservation can be cancelled in Varaamo after logging in.
+{% endtrans %}
+{%- set extra_content=reservation.resource.reservation_confirmed_notification_extra -%}
+{% if extra_content %}
+{{ extra_content|django_wordwrap(76) }}
+{% endif -%}

@@ -1,0 +1,30 @@
+.panel-heading {
+  padding: 0;
+
+  a {
+    display: block;
+    position: relative;
+    padding: 12px 40px 8px 15px;
+    line-height: 17px;
+
+    &:hover {
+      color: inherit;
+    }
+
+    &:after {
+      position: absolute;
+      font-family: 'Glyphicons Halflings';
+      content: "\e113";
+      top: 12px;
+      right: 15px;
+    }
+
+    &.collapsed:after {
+      content: "\e114";
+    }
+  }
+}
+
+.panel-extra-heading {
+  background-color: @panel-default-heading-bg;
+}

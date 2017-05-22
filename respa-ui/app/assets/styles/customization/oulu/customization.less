@@ -1,0 +1,91 @@
+@import "./variables.less";
+@import "./mixins.less";
+
+.oulu-customizations {
+  @screen-md-min: 992px;
+
+  h1, h2, h3, h4, h5, h6 {
+    color: @brand-dark-green;
+  }
+
+  .row-md-flex-center {
+    @media(min-width: @screen-md-min) {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .nav > li > a {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .navbar-brand {
+    padding-right: 20px;
+    img {
+      margin-right: 20px;
+    }
+  }
+
+  .navbar-inverse {
+    a:hover,
+    a:focus {
+      color: @brand-light-green;
+    }
+    background-color: @brand-dark-green;
+
+    .navbar-nav {
+      a:hover,
+      a:focus {
+        color: @brand-light-green;
+      }
+
+      > .active > a,
+      > .active > a:hover,
+      > .active > a:focus {
+        background-color: darken(@brand-dark-green, 6.5%);
+      }
+
+      .open > a,
+      .open > a:hover,
+      .open > a:focus {
+        background-color: darken(@brand-dark-green, 6.5%);
+      }
+    }
+  }
+
+  footer {
+    background-color: @brand-medium-green;
+
+    .brand-link {
+      line-height: 60px;
+      vertical-align: middle;
+      img {
+        max-width: 50%;
+        height: auto;
+        vertical-align: middle;
+      }
+    }
+
+    .container {
+      padding-top: inherit;
+      padding-bottom: inherit;
+    }
+
+    p {
+      @media(min-width: @screen-md-min) {
+        margin: 0;
+      }
+    }
+  }
+
+
+
+  // Buttons
+  // -------
+
+  .btn-primary {
+    .btn-styles(@brand-medium-green);
+  }
+
+}

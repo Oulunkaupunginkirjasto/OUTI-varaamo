@@ -1,0 +1,54 @@
+{
+  "extends": "airbnb",
+
+  "env": {
+    "browser": true,
+    "mocha": true,
+    "node": true
+  },
+
+  "globals": {
+    __API_URL__: true,
+    __DEVTOOLS__: true,
+    __TRACKING__: false
+  },
+
+  "parser": "babel-eslint",
+
+  "plugins": [
+    "babel",
+    "react"
+  ],
+
+  "rules": {
+
+    // Amendments to airbnb rules
+    // ##########################
+
+    "import/no-extraneous-dependencies": 0,
+
+    "import/no-unresolved": 0,
+
+    "import/prefer-default-export": 0,
+
+    // allow use of constructors without new,
+    // makes working with seamless-immutable easier
+    "new-cap": ["error", {"capIsNew": false, "newIsCap": true}],
+
+    // allow using underscore dangle with piwik
+    "no-underscore-dangle": ["error", { "allow": ["_paq"] }],
+
+    // makes testing easier with chai expect
+    "no-unused-expressions": 0,
+
+    // allow functions to be used before they are defined
+    "no-use-before-define": ["error", "nofunc"],
+
+    "react/jsx-filename-extension": 0,
+
+    "react/no-string-refs": 0,
+
+    "react/prefer-stateless-function": 0
+
+  }
+}

@@ -1,0 +1,77 @@
+.reservations-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  .reservation {
+    position: relative;
+    min-height: 160px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 120px;
+    border-bottom: 1px solid @gray-lighter;
+
+    @media (max-width: @screen-xs-max) {
+      padding-left: 90px;
+      min-height: 140px;
+    }
+
+    .image {
+      position: absolute;
+      left: 0;
+      top: 20px;
+      @media (max-width: @screen-xs-max) {
+        img {
+          width: 80px;
+        }
+      }
+    }
+
+    .names {
+      h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        @media (max-width: @screen-xs-max) {
+          font-size: 16px;
+          margin-bottom: 5px;
+          line-height: 1;
+        }
+      }
+      .unit-name {
+        font-size: 15px;
+        font-weight: normal;
+        color: @gray;
+      }
+    }
+
+    .time {
+      margin-bottom: 10px;
+      @media (max-width: @screen-xs-max) {
+        margin-bottom: 5px;
+      }
+    }
+
+    .state {
+      font-size: 20px;
+      width: 100%;
+      max-width: 330px;
+      @media (max-width: @screen-xs-max) {
+        font-size: 16px;
+      }
+
+      .label {
+        display: block;
+      }
+    }
+
+    .buttons {
+      margin-left: -14px;
+
+      button {
+        width: 80px;
+        margin-left: 14px;
+        margin-top: 14px;
+      }
+    }
+  }
+}

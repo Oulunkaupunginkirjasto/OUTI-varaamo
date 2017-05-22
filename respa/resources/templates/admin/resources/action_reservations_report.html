@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+{% block javascripts %}
+    {{ block.super }}
+    {% url 'admin:jsi18n' as jsi18nurl %}
+    <script type="text/javascript" src="{{ jsi18nurl|default:'../../../jsi18n/' }}"></script>
+    <script type="text/javascript" charset="utf-8">
+        (function($) {
+            $(document).ready(function() {
+                grappelli.initDateAndTimePicker();
+                $("#grp-content-container .grp-group").grp_collapsible_group();
+                $("#grp-content-container .grp-collapse").grp_collapsible({
+                    on_init: function(elem, options) {
+                        // open collapse (and all collapse parents) in case of errors
+                        if (elem.find("ul.errorlist").length > 0) {
+                            elem.removeClass("grp-closed")
+                                .addClass("grp-open");
+                            elem.parents(".grp-collapse")
+                                .removeClass("grp-closed")
+                                .addClass("grp-open");
+                        }
+                    }
+                });
+                $("a#grp-open-all").bind("click", function(){
+                    $("#grp-content .grp-collapse-handler").each(function() {
+                        $(this).parent(".grp-collapse").removeClass("grp-closed").addClass("grp-open");
+                    });
+                });
+                $("a#grp-close-all").bind("click", function(){
+                    $("#grp-content .grp-collapse-handler").each(function() {
+                        $(this).parent(".grp-collapse").removeClass("grp-open").addClass("grp-closed");
+                    });
+                });
+                // HACK: get rid of currently/change with URL–fields. F**K!!!
+                {% block js_remove_url %}
+                $('p.url').each(function() {
+                    $(this).find("a").remove();
+                    var text = $(this).html();
+                    text = text.replace(/^\w*: /, "");
+                    text = text.replace(/<br>.*: /, "");
+                    $(this).html(text);
+                });
+                {% endblock %}
+                // HACK: rearrange inlines
+                {% block js_rearrange_inlines %}
+                $('div.grp-group').each(function() {
+                    var placeholder = $("fieldset.placeholder."+$(this).attr("id"));
+                    if (placeholder.length) {
+                        $(placeholder).replaceWith($(this));
+                    }
+                });
+                {% endblock %}
+            });
+        })(grp.jQuery);
+    </script>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post">
+
+        {% csrf_token %}
+        <input type="hidden" name="action" value="report_action">
+        <input type="hidden" name="do_action" value="yes">
+
+        <div>
+            <div>{{ form.non_field_errors }}</div>
+            <div>Start: {{ form.start }}</div>
+            <div>{{ form.start.errors }}</div>
+            <div>End: {{ form.end }}</div>
+            <div>{{ form.end.errors }}</div>
+            <div><input type="submit" class="default" style="float: none" value="Submit"></div>
+
+        </div>
+    </form>
+{% endblock %}
