@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React, { Component, PropTypes } from 'react';
 import Label from 'react-bootstrap/lib/Label';
 import Dotdotdot from 'react-dotdotdot';
@@ -5,6 +6,7 @@ import { defineMessages, FormattedMessage, injectIntl, intlShape } from 'react-i
 import { Link } from 'react-router';
 
 import {
+  getAvailabilityDataForNow,
   getAvailableTime,
   getCaption,
   getDescription,
@@ -24,6 +26,22 @@ const messages = defineMessages({
   reserve: {
     id: 'search_result.reserve',
     defaultMessage: '. Varaa.',
+  },
+  available: {
+    id: 'ResourceAvailability.available',
+    defaultMessage: 'Heti vapaa',
+  },
+  availableAt: {
+    id: 'ResourceAvailability.availableAt',
+    defaultMessage: 'Vapautuu klo {time}',
+  },
+  closed: {
+    id: 'ResourceAvailability.closed',
+    defaultMessage: 'Suljettu',
+  },
+  reserved: {
+    id: 'ResourceAvailability.reserved',
+    defaultMessage: 'Varattu koko päivän',
   },
 });
 
@@ -45,6 +63,20 @@ class SearchResult extends Component {
     );
   }
 
+  renderCurrentAvailability(availabilityData) {
+    const { intl } = this.props;
+    if (!availabilityData || !availabilityData.status) {
+      return null;
+    }
+    return (
+      <Label bsStyle={availabilityData.bsStyle}>
+        {intl.formatMessage(messages[availabilityData.status],
+          availabilityData.values
+        )}
+      </Label>
+    );
+  }
+
   renderImage(image) {
     const { intl } = this.props;
     if (image && image.url) {
@@ -58,6 +90,11 @@ class SearchResult extends Component {
     const { date, intl, result, unit } = this.props;
     const availableTime = getAvailableTime(getOpeningHours(result, date), result.reservations,
       result.reservableBefore, result.reservableAfter);
+    const now = moment();
+    let availabilityNow = null;
+    if (moment(date).isSame(now, 'day')) {
+      availabilityNow = getAvailabilityDataForNow(result, date);
+    }
     const locale = intl.locale;
 
     return (
@@ -101,6 +138,15 @@ class SearchResult extends Component {
           >
             {this.renderAvailableTime(availableTime)}
           </Link>
+          &nbsp;
+          {availabilityNow && (
+            <Link
+              to={`/resources/${result.id}/reservation`}
+              query={{ date: date.split('T')[0] }}
+            >
+              {this.renderCurrentAvailability(availabilityNow)}
+            </Link>
+          )}
         </div>
       </li>
     );

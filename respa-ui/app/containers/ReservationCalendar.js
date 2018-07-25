@@ -3,7 +3,7 @@ import forEach from 'lodash/forEach';
 import tail from 'lodash/tail';
 import moment from 'moment';
 import React, { Component, PropTypes } from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { injectIntl, intlShape } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { updatePath } from 'redux-simple-router';
@@ -24,7 +24,6 @@ import {
   openLoginModal,
   toggleTimeSlot,
 } from 'actions/uiActions';
-import AvailableDatePicker from 'components/common/AvailableDatePicker';
 import DateHeader from 'components/common/DateHeader';
 import ConfirmReservationModal from 'components/reservation/ConfirmReservationModal';
 import MultiDayReservation from 'components/reservation/MultiDayReservation';
@@ -34,17 +33,6 @@ import ReservationCancelModal from 'containers/ReservationCancelModal';
 import ReservationInfoModal from 'containers/ReservationInfoModal';
 import ReservationSuccessModal from 'containers/ReservationSuccessModal';
 import reservationCalendarSelector from 'selectors/containers/reservationCalendarSelector';
-
-const messages = defineMessages({
-  gotoSelected: {
-    id: 'reservation_calendar.go_to_selected',
-    defaultMessage: 'Mene valittuun',
-  },
-  today: {
-    id: 'reservation_calendar.today',
-    defaultMessage: 'Tänään',
-  },
-});
 
 export class UnconnectedReservationCalendar extends Component {
   constructor(props) {
@@ -162,12 +150,12 @@ export class UnconnectedReservationCalendar extends Component {
       confirmReservationModalIsOpen,
       date,
       fetchDates,
-      intl,
       isFetchingResource,
       isLoggedIn,
       isLoggingIn,
       isMakingReservations,
       multiDay,
+      onCalendarViewDateChange,
       passwordRequired,
       reservationsToEdit,
       resource,
@@ -187,17 +175,6 @@ export class UnconnectedReservationCalendar extends Component {
 
     return (
       <div>
-        <AvailableDatePicker
-          availability={calendarAvailability}
-          fetchDates={fetchDates}
-          date={date}
-          hideFooter
-          gotoSelectedText={intl.formatMessage(messages.gotoSelected)}
-          locale={intl.locale}
-          onChange={this.onDateChange}
-          style={{ height: 210 }}
-          todayText={intl.formatMessage(messages.today)}
-        />
         <DateHeader
           date={date}
           onChange={this.onDateChange}
@@ -210,6 +187,7 @@ export class UnconnectedReservationCalendar extends Component {
             beginDate={multiDay.begin}
             endDate={multiDay.end}
             defaultDate={date}
+            onCalendarViewDateChange={onCalendarViewDateChange}
             onCancel={this.handleMultiDayCancel}
             onChangeBeginDate={this.handleMultiDayChangeBegin}
             onChangeEndDate={this.handleMultiDayChangeEnd}
@@ -283,6 +261,7 @@ UnconnectedReservationCalendar.propTypes = {
   isLoggingIn: PropTypes.bool.isRequired,
   isMakingReservations: PropTypes.bool.isRequired,
   multiDay: PropTypes.object.isRequired,
+  onCalendarViewDateChange: PropTypes.func,
   passwordRequired: PropTypes.bool.isRequired,
   reservationsToEdit: PropTypes.array.isRequired,
   resource: PropTypes.object.isRequired,

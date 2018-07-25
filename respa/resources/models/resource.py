@@ -151,6 +151,9 @@ class Resource(ModifiableModel, AutoIdentifiedModel):
                                                                   null=True, blank=True)
     reservable_after_days = models.PositiveSmallIntegerField(verbose_name=_('Reservable after days from today'),
                                                              null=True, blank=True)
+    display_order = models.PositiveSmallIntegerField(verbose_name=_('Display order'), null=True, blank=True)
+    anonymize_after_days = models.PositiveSmallIntegerField(verbose_name=_('Anonymize reservations after end (days)'),
+                                                            default=1)
 
     class Meta:
         verbose_name = _("resource")
@@ -239,7 +242,7 @@ class Resource(ModifiableModel, AutoIdentifiedModel):
             overlapping = overlapping.exclude(pk=reservation.pk)
         return overlapping.exists()
 
-    def get_available_hours(self, start=None, end=None, duration=None, reservation=None, during_closing=False):
+    def get_available_hours(self, start=None, end=None, duration=None, reservation=None, during_closing=False, reservations_cache=None):
         """
         Returns hours that the resource is not reserved for a given date range
 
@@ -270,6 +273,13 @@ class Resource(ModifiableModel, AutoIdentifiedModel):
             start = tz.localize(start)
             end = tz.localize(end)
 
+        if reservations_cache is None:
+            reservations = self.reservations.filter(
+                end__gte=start, begin__lte=end).order_by('begin')
+        else:
+            reservations = reservations_cache
+        reservations = list(reservations)
+
         if not during_closing:
             """
             Check open hours only
@@ -287,11 +297,12 @@ class Resource(ModifiableModel, AutoIdentifiedModel):
                                                                    end=closes,
                                                                    duration=duration,
                                                                    reservation=reservation,
-                                                                   during_closing=True))
+                                                                   during_closing=True,
+                                                                   reservations_cache=reservations))
             return hours_list
 
-        reservations = self.reservations.filter(
-            end__gte=start, begin__lte=end).order_by('begin')
+        reservations = [reservation for reservation in reservations if
+                        reservation.end >= start and reservation.begin <= end]
         hours_list = [({'starts': start})]
         first_checked = False
         for res in reservations:

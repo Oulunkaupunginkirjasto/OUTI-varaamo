@@ -14,7 +14,19 @@ const searchResultAvailabilityByDaySelector = createSelector(
   (dates, results) => {
     const days = {};
     const today = moment().startOf('day');
-    const range = moment.range(moment(dates.startMoment), moment(dates.endMoment));
+    let earliestDate = dates.startMoment;
+    let latestDate = dates.endMoment;
+    forEach(results, (result) => {
+      forEach(result.openingHours, (hours) => {
+        const date = moment(hours.date);
+        if (date < earliestDate) {
+          earliestDate = date.startOf('day');
+        } else if (date > latestDate) {
+          latestDate = date.endOf('day');
+        }
+      });
+    });
+    const range = moment.range(moment(earliestDate), moment(latestDate));
     range.by(moment.duration(1, 'days'), (date) => {
       const dateString = date.format(constants.DATE_FORMAT);
       if (date.isBefore(today)) {

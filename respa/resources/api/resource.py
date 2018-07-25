@@ -391,6 +391,7 @@ class ResourceListViewSet(munigeo_api.GeoModelAPIView, mixins.ListModelMixin,
                           viewsets.GenericViewSet):
     queryset = Resource.objects.select_related('generic_terms', 'unit', 'type')
     queryset = queryset.prefetch_related('favorited_by', 'resource_equipment', 'purposes', 'images', 'purposes')
+    queryset = queryset.order_by('unit__display_order', 'display_order', 'name')
     serializer_class = ResourceSerializer
     pagination_class = ResourcePagination
     filter_backends = (filters.SearchFilter, ResourceFilterBackend,

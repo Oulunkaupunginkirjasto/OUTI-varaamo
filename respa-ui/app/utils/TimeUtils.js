@@ -30,19 +30,21 @@ function getDateString(date) {
   return date;
 }
 
-function getStartAndEndMoments(date) {
+function getStartAndEndMoments(date, extendDate) {
   const dateMoment = moment(date);
-  const nowMoment = moment().startOf('day');
   const earliestMoment = moment(dateMoment).startOf('month').startOf('week');
   const latestMoment = moment(earliestMoment).add(5, 'weeks').endOf('week');
+  let extendMoment = null;
+  if (extendDate) {
+    extendMoment = moment(extendDate);
+  }
   let startMoment = earliestMoment;
-  if (startMoment < nowMoment) {
-    // startMoment = nowMoment;
+  if (extendMoment && startMoment > extendMoment) {
+    startMoment = extendMoment;
   }
   let endMoment = latestMoment;
-  if (moment(dateMoment).endOf('day') < nowMoment) {
-    startMoment = moment(dateMoment).startOf('day');
-    endMoment = moment(dateMoment).endOf('day');
+  if (extendMoment && endMoment < extendMoment) {
+    endMoment = extendMoment;
   }
   return {
     startMoment,
@@ -50,11 +52,11 @@ function getStartAndEndMoments(date) {
   };
 }
 
-function getStartAndEndTimes(date) {
+function getStartAndEndTimes(date, extendDate) {
   if (!date) {
     return {};
   }
-  const { startMoment, endMoment } = getStartAndEndMoments(date);
+  const { startMoment, endMoment } = getStartAndEndMoments(date, extendDate);
   const startDate = startMoment.format(constants.DATE_FORMAT);
   const endDate = endMoment.format(constants.DATE_FORMAT);
   const start = `${startDate}T00:00:00Z`;
@@ -63,8 +65,36 @@ function getStartAndEndTimes(date) {
   return { start, end };
 }
 
+function getStartAndEndOfReservations(date, reservations) {
+  if (reservations && reservations.length) {
+    const dateMoment = moment(date);
+    let earliestStart = null;
+    let latestEnd = null;
+    forEach(reservations, (reservation) => {
+      const beginMoment = moment(reservation.begin);
+
+      if (!beginMoment.isSame(dateMoment, 'day')) {
+        return;
+      }
+
+      const endMoment = moment(reservation.end);
+      if (beginMoment < earliestStart || earliestStart === null) {
+        earliestStart = beginMoment;
+      }
+      if (endMoment > latestEnd || latestEnd === null) {
+        latestEnd = endMoment;
+      }
+    });
+    if (earliestStart === null || latestEnd === null) {
+      return {};
+    }
+    return { opens: earliestStart, closes: latestEnd };
+  }
+  return {};
+}
+
 function getTimeSlots(start, end, period = '00:30:00', reservations = [], reservationsToEdit = [],
-                      reservableBefore, reservableAfter, limitEnd) {
+                      reservableBefore, reservableAfter, limitEnd, reservationsAllowed = true) {
   if (!start || !end) {
     return [];
   }
@@ -128,7 +158,7 @@ function getTimeSlots(start, end, period = '00:30:00', reservations = [], reserv
       }
     });
 
-    let reservable = true;
+    let reservable = reserved || reservationsAllowed;
     if ((reservableBeforeUTC && startUTC >= reservableBeforeUTC) ||
         (reservableAfterUTC && startUTC < reservableAfterUTC)) {
       reservable = false;
@@ -156,6 +186,7 @@ export {
   getDateStartAndEndTimes,
   getDateString,
   getStartAndEndMoments,
+  getStartAndEndOfReservations,
   getStartAndEndTimes,
   getTimeSlots,
 };

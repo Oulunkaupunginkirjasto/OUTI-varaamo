@@ -61,6 +61,39 @@ function getAddressWithName(item, language = 'fi') {
   return filter(parts, part => part !== '').join(', ');
 }
 
+function getAvailabilityDataForNow(resource = {}, date) {
+  const { closes, opens } = getOpeningHours(resource, date);
+  const reservations = getOpenReservations(resource);
+
+  if (!closes || !opens) {
+    return { status: 'closed', bsStyle: 'danger' };
+  }
+
+  const nowMoment = moment();
+  const opensMoment = moment(opens);
+  const closesMoment = moment(closes);
+  const beginMoment = nowMoment > opensMoment ? nowMoment : opensMoment;
+  const currentReservation = getCurrentReservation(reservations);
+
+  if (nowMoment > closesMoment) {
+    return { status: 'closed', bsStyle: 'danger' };
+  }
+
+  if (currentReservation || nowMoment < opensMoment) {
+    const nextAvailableTime = getNextAvailableTime(reservations, beginMoment);
+    if (nextAvailableTime < closesMoment) {
+      return {
+        status: 'availableAt',
+        bsStyle: 'danger',
+        values: { time: nextAvailableTime.format(constants.TIME_FORMAT) },
+      };
+    }
+    return { status: 'reserved', bsStyle: 'danger' };
+  }
+
+  return { status: 'available', bsStyle: 'success' };
+}
+
 function getAvailableTime(openingHours = {}, reservations = [], reservableBefore, reservableAfter) {
   const { closes, opens } = openingHours;
 
@@ -117,6 +150,13 @@ function getCaption(item, language = 'fi') {
   return getTranslatedProperty(item, 'caption', language);
 }
 
+function getCurrentReservation(reservations) {
+  const now = moment();
+  return find(
+    reservations, reservation => moment(reservation.begin) < now && now < moment(reservation.end)
+  );
+}
+
 function getDescription(item, language = 'fi') {
   return getTranslatedProperty(item, 'description', language);
 }
@@ -143,6 +183,17 @@ function getName(item, language) {
   return getTranslatedProperty(item, 'name', language);
 }
 
+function getNextAvailableTime(reservations, fromMoment = moment()) {
+  const combinedReservations = combineReservations(reservations);
+  if (!combinedReservations.length || fromMoment < moment(combinedReservations[0].begin)) {
+    return fromMoment;
+  }
+  const ongoingReservation = find(combinedReservations, reservation => (
+    moment(reservation.begin) <= fromMoment && fromMoment < moment(reservation.end)
+  ));
+  return ongoingReservation ? moment(ongoingReservation.end) : fromMoment;
+}
+
 function getOpeningHours(item, date) {
   if (item && item.openingHours && item.openingHours.length) {
     let openingHours = filter(item.openingHours, (hours) => (hours.date === date));
@@ -156,6 +207,12 @@ function getOpeningHours(item, date) {
   }
 
   return {};
+}
+
+function getOpenReservations(resource) {
+  return filter(resource.reservations, reservation => (
+    reservation.state !== 'cancelled' && reservation.state !== 'denied'
+  ));
 }
 
 function getPeopleCapacityString(capacity) {
@@ -218,6 +275,7 @@ export {
   isStaffEvent,
   getAddress,
   getAddressWithName,
+  getAvailabilityDataForNow,
   getAvailableTime,
   getCaption,
   getDescription,

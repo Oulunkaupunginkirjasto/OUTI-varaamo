@@ -1,6 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import React, { Component, PropTypes } from 'react';
 import Button from 'react-bootstrap/lib/Button';
+import Col from 'react-bootstrap/lib/Col';
+import Grid from 'react-bootstrap/lib/Grid';
+import Row from 'react-bootstrap/lib/Row';
 import DocumentTitle from 'react-document-title';
 import { defineMessages, FormattedMessage, injectIntl, intlShape } from 'react-intl';
 import Loader from 'react-loader';
@@ -13,6 +16,7 @@ import ResourceHeader from 'components/resource/ResourceHeader';
 import ReservationInfo from 'components/reservation/ReservationInfo';
 import NotFoundPage from 'containers/NotFoundPage';
 import ReservationCalendar from 'containers/ReservationCalendar';
+import ReservationDateSelect from 'containers/ReservationDateSelect';
 import reservationPageSelector from 'selectors/containers/reservationPageSelector';
 import { getAddressWithName, getName } from 'utils/DataUtils';
 import { getStartAndEndTimes } from 'utils/TimeUtils';
@@ -25,6 +29,11 @@ const messages = defineMessages({
 });
 
 export class UnconnectedReservationPage extends Component {
+  constructor(props) {
+    super(props);
+    this.handleCalendarViewDateChange = this.handleCalendarViewDateChange.bind(this);
+  }
+
   componentDidMount() {
     const { actions, date, id } = this.props;
     const fetchParams = getStartAndEndTimes(date);
@@ -39,6 +48,13 @@ export class UnconnectedReservationPage extends Component {
 
       actions.fetchResource(id, fetchParams);
     }
+  }
+
+  handleCalendarViewDateChange(dateText) {
+    const { actions, date, id } = this.props;
+    const fetchParams = getStartAndEndTimes(dateText, date);
+
+    actions.fetchResource(id, fetchParams);
   }
 
   render() {
@@ -94,10 +110,24 @@ export class UnconnectedReservationPage extends Component {
                   defaultMessage="Varaustilanne"
                 />}
             </h2>
-            <ReservationCalendar
-              location={location}
-              params={params}
-            />
+            <Grid fluid>
+              <Row>
+                <Col xs={12} md={5} lg={4}>
+                  <ReservationDateSelect
+                    location={location}
+                    params={params}
+                    onCalendarViewDateChange={this.handleCalendarViewDateChange}
+                  />
+                </Col>
+                <Col xs={12} md={7} lg={8}>
+                  <ReservationCalendar
+                    location={location}
+                    params={params}
+                    onCalendarViewDateChange={this.handleCalendarViewDateChange}
+                  />
+                </Col>
+              </Row>
+            </Grid>
           </div>
         </Loader>
       </DocumentTitle>

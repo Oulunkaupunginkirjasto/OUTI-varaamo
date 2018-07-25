@@ -11,7 +11,7 @@ import LoginForm from 'components/authentication/LoginForm';
 import CompactReservationsList from 'components/common/CompactReservationsList';
 import constants from 'constants/AppConstants';
 import ReservationForm from 'containers/ReservationForm';
-import { isStaffEvent } from 'utils/DataUtils';
+import { getName, isStaffEvent } from 'utils/DataUtils';
 
 const messages = defineMessages({
   confirmHelp: {
@@ -154,6 +154,7 @@ class UnconnectedConfirmReservationModal extends Component {
       isEditing,
       isPreliminaryReservation,
       reservationsToEdit,
+      resource,
       selectedReservations,
     } = this.props;
 
@@ -196,6 +197,7 @@ class UnconnectedConfirmReservationModal extends Component {
 
     return (
       <div>
+        <p><strong>{getName(resource, intl.locale)}</strong></p>
         <p><strong>{helpText}</strong></p>
         <CompactReservationsList reservations={selectedReservations} />
         {isPreliminaryReservation && (

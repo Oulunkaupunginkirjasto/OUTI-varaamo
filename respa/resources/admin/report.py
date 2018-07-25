@@ -78,16 +78,15 @@ def generate_report(start, end):
         reservation_counts[reservation.resource.pk][year_sum_key] += 1
 
     purposes_by_id = dict()
-    resources = Resource.objects.all()
+    resources = Resource.objects.all().order_by("unit", "name_fi")
     resources_by_purpose = defaultdict(list)
     for resource in resources:
-        if reservation_counts[resource.pk]:
-            first_purpose = resource.purposes.first()
-            while first_purpose.parent:
-                first_purpose = first_purpose.parent
-            if first_purpose.pk not in purposes_by_id:
-                purposes_by_id[first_purpose.pk] = first_purpose
-            resources_by_purpose[first_purpose.pk].append(resource)
+        first_purpose = resource.purposes.first()
+        while first_purpose.parent:
+            first_purpose = first_purpose.parent
+        if first_purpose.pk not in purposes_by_id:
+            purposes_by_id[first_purpose.pk] = first_purpose
+        resources_by_purpose[first_purpose.pk].append(resource)
 
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
@@ -117,10 +116,10 @@ def generate_report(start, end):
     rows.append(year_row)
     rows.append(month_row)
 
-    for purpose_id, ress in resources_by_purpose.items():
+    for purpose_id, p_resources in resources_by_purpose.items():
         purpose = purposes_by_id[purpose_id]
         rows.append([purpose.name])
-        for res in ress:
+        for res in p_resources:
             row = [res.name, res.unit.name]
             for key in month_keys:
                 row.append(reservation_counts[res.pk][key])

@@ -15,7 +15,7 @@ class ReservationInfo extends Component {
       <p>
         <FormattedMessage
           id="reservation_info.login_required"
-          defaultMessage="Sinun täytyy kirjautua sisään, jotta voit tehdä varauksen tähän tilaan."
+          defaultMessage="Sinun täytyy kirjautua sisään, jotta voit tehdä varauksen."
         />
       </p>
     );

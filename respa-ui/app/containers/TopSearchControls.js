@@ -1,8 +1,9 @@
 import throttle from 'lodash/throttle';
 import queryString from 'query-string';
 import React, { Component, PropTypes } from 'react';
+import Button from 'react-bootstrap/lib/Button';
 import { findDOMNode } from 'react-dom';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { updatePath } from 'redux-simple-router';
@@ -11,24 +12,14 @@ import { fetchPurposes } from 'actions/purposeActions';
 import { getTypeaheadSuggestions } from 'actions/searchActions';
 import { changeSearchFilters } from 'actions/uiActions';
 import { fetchUnits } from 'actions/unitActions';
-import AvailableDatePicker from 'components/common/AvailableDatePicker';
+import SearchFilters from 'components/search/SearchFilters';
 import searchControlsSelector from 'selectors/containers/searchControlsSelector';
 import { scrollTo } from 'utils/DOMUtils';
-
-const messages = defineMessages({
-  gotoSelected: {
-    id: 'search_controls.go_to_selected',
-    defaultMessage: 'Mene valittuun',
-  },
-  today: {
-    id: 'search_controls.today',
-    defaultMessage: 'Tänään',
-  },
-});
 
 export class UnconnectedSearchControls extends Component {
   constructor(props) {
     super(props);
+    this.fetchTypeaheadSuggestions = this.fetchTypeaheadSuggestions.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
     this.onDateChange = this.onDateChange.bind(this);
@@ -41,6 +32,10 @@ export class UnconnectedSearchControls extends Component {
       scrollTo(findDOMNode(this.refs.searchFilters));
     }
     actions.changeSearchFilters(urlSearchFilters);
+    actions.fetchPurposes();
+    this.fetchTypeaheadSuggestions = throttle(
+      this.fetchTypeaheadSuggestions, 200, { leading: false, trailing: true }
+    );
     this.throttledHandleSearch = throttle(
       this.handleSearch, 1000, { leading: false, trailing: true }
     );
@@ -54,6 +49,10 @@ export class UnconnectedSearchControls extends Component {
   onFiltersChange(newFilters) {
     this.props.actions.changeSearchFilters(newFilters);
     this.handleSearch(newFilters, { preventScrolling: true });
+  }
+
+  fetchTypeaheadSuggestions(value) {
+    this.props.actions.getTypeaheadSuggestions({ full: true, input: value });
   }
 
   handleSearch(newFilters, options = {}) {
@@ -73,6 +72,7 @@ export class UnconnectedSearchControls extends Component {
 
   handleSearchInputChange(value) {
     this.props.actions.changeSearchFilters({ search: value });
+    this.fetchTypeaheadSuggestions(value);
     if (value.length > 2) {
       this.throttledHandleSearch({ search: value }, { preventScrolling: true });
     }
@@ -80,26 +80,35 @@ export class UnconnectedSearchControls extends Component {
 
   render() {
     const {
-      calendarAvailability,
-      fetchDates,
-      intl,
-      onCalendarViewDateChange,
+      isFetchingPurposes,
+      isFetchingUnits,
+      purposeOptions,
+      unitOptions,
     } = this.props;
 
     return (
       <div>
-        <AvailableDatePicker
-          availability={calendarAvailability}
-          fetchDates={fetchDates}
-          date={this.props.filters.date}
-          hideFooter
-          gotoSelectedText={intl.formatMessage(messages.gotoSelected)}
-          locale={intl.locale}
-          onChange={this.onDateChange}
-          onViewDateChange={onCalendarViewDateChange}
-          style={{ height: 210 }}
-          todayText={intl.formatMessage(messages.today)}
+        <SearchFilters
+          isFetchingPurposes={isFetchingPurposes}
+          isFetchingUnits={isFetchingUnits}
+          onFiltersChange={this.onFiltersChange}
+          purposeOptions={purposeOptions}
+          unitOptions={unitOptions}
+          filters={this.props.filters}
+          ref="searchFilters"
         />
+        <Button
+          block
+          bsStyle="primary"
+          className="search-button"
+          onClick={() => this.handleSearch()}
+          type="submit"
+        >
+          <FormattedMessage
+            id="search_controls.search"
+            defaultMessage="Hae"
+          />
+        </Button>
       </div>
     );
   }

@@ -89,21 +89,27 @@ export class UnconnectedUserReservationsPage extends Component {
             )}
             { isAdmin && (
               <div>
-                <h1>Alustavat varaukset</h1>
+                <h1><FormattedMessage
+                  id="myreservations.ordinary_reservations"
+                  defaultMessage="Tavalliset varaukset"
+                /></h1>
+                <ReservationsList
+                  emptyMessage={intl.formatMessage(messages.noOrdinary)}
+                  filter="regular"
+                  loading={reservationsFetchCount < 1}
+                />
+                <h1><FormattedMessage
+                  id="myreservations.preliminary_reservations"
+                  defaultMessage="Alustavat varaukset"
+                /></h1>
                 <AdminReservationsFilters
                   filters={adminReservationsFilters}
                   onFiltersChange={this.handleFiltersChange}
                 />
                 <ReservationsList
-                  emptyMessage="Ei alustavia varauksia näytettäväksi."
+                  emptyMessage={intl.formatMessage(messages.noPreliminary)}
                   filter={adminReservationsFilters.state}
                   loading={reservationsFetchCount < 2}
-                />
-                <h1>Tavalliset varaukset</h1>
-                <ReservationsList
-                  emptyMessage="Ei tavallisia varauksia näytettäväksi."
-                  filter="regular"
-                  loading={reservationsFetchCount < 1}
                 />
               </div>
             )}

@@ -73,6 +73,7 @@ class Reservation(ModifiableModel):
     reserver_email_address = models.EmailField(verbose_name=_('Reserver email address'), blank=True)
 
     access_code = models.CharField(verbose_name=_('Access code'), max_length=32, blank=True)
+    has_been_anonymized = models.BooleanField(verbose_name=_('Has been anonymized'), default=False, blank=True)
 
     def _save_dt(self, attr, dt):
         """

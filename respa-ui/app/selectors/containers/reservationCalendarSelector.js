@@ -15,7 +15,7 @@ import staffUnitsSelector from 'selectors/staffUnitsSelector';
 import modalIsOpenSelectorFactory from 'selectors/factories/modalIsOpenSelectorFactory';
 import requestIsActiveSelectorFactory from 'selectors/factories/requestIsActiveSelectorFactory';
 import { getOpeningHours } from 'utils/DataUtils';
-import { getTimeSlots } from 'utils/TimeUtils';
+import { getStartAndEndOfReservations, getTimeSlots } from 'utils/TimeUtils';
 import ModalTypes from 'constants/ModalTypes';
 
 const idSelector = (state, props) => props.params.id;
@@ -63,17 +63,23 @@ const reservationCalendarSelector = createSelector(
     urlHash,
     multiDay
   ) => {
-    const { closes, opens } = getOpeningHours(resource, date);
+    let { closes, opens } = getOpeningHours(resource, date);
     const period = resource.minPeriod ? resource.minPeriod : undefined;
     const reservations = resource.reservations || undefined;
     const openReservations = filter(reservations, (reservation) => {
       const openStates = ['confirmed', 'requested'];
       return includes(openStates, reservation.state);
     });
+    const reservationsAllowed = opens && closes;
     const reservableBefore = resource.reservableBefore;
     const reservableAfter = resource.reservableAfter;
+    if (!opens) {
+      const reservationTimes = getStartAndEndOfReservations(date, openReservations);
+      closes = reservationTimes.closes;
+      opens = reservationTimes.opens;
+    }
     const timeSlots = getTimeSlots(opens, closes, period, openReservations, reservationsToEdit,
-      reservableBefore, reservableAfter, false);
+      reservableBefore, reservableAfter, false, reservationsAllowed);
 
     return {
       calendarAvailability,

@@ -5,11 +5,11 @@ import queryString from 'query-string';
 import constants from 'constants/AppConstants';
 import { getStartAndEndTimes, getDateString } from 'utils/TimeUtils';
 
-function getFetchParamsFromFilters(filters) {
+function getFetchParamsFromFilters(filters, extendDate) {
   const all = Object.assign(
     {},
     pickSupportedFilters(filters),
-    getStartAndEndTimes(filters.date)
+    getStartAndEndTimes(filters.date, extendDate)
   );
 
   return omit(all, 'date');

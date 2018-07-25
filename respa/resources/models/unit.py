@@ -43,6 +43,7 @@ class Unit(ModifiableModel, AutoIdentifiedModel):
                                                                   null=True, blank=True)
     reservable_after_days = models.PositiveSmallIntegerField(verbose_name=_('Reservable after days from today'),
                                                              null=True, blank=True)
+    display_order = models.PositiveSmallIntegerField(verbose_name=_('Display order'), null=True, blank=True)
 
     class Meta:
         verbose_name = _("unit")

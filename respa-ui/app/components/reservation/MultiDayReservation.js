@@ -31,6 +31,7 @@ class MultiDayReservation extends Component {
       defaultDate,
       endDate,
       intl,
+      onCalendarViewDateChange,
       onCancel,
       onChangeBeginDate,
       onChangeEndDate,
@@ -60,6 +61,7 @@ class MultiDayReservation extends Component {
                 locale={intl.locale}
                 onChange={onChangeBeginDate}
                 onRenderDay={this.handleRenderDay}
+                onViewDateChange={onCalendarViewDateChange}
                 style={{ height: 210 }}
               />
             </DateField>
@@ -79,6 +81,7 @@ class MultiDayReservation extends Component {
                 locale={intl.locale}
                 onChange={onChangeEndDate}
                 onRenderDay={this.handleRenderDay}
+                onViewDateChange={onCalendarViewDateChange}
                 style={{ height: 210 }}
               />
             </DateField>
@@ -127,6 +130,7 @@ MultiDayReservation.propTypes = {
   endDate: PropTypes.string,
   calendarAvailability: PropTypes.object,
   fetchDates: PropTypes.object,
+  onCalendarViewDateChange: PropTypes.func,
   onCancel: PropTypes.func.isRequired,
   onChangeBeginDate: PropTypes.func.isRequired,
   onChangeEndDate: PropTypes.func.isRequired,

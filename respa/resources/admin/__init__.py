@@ -4,6 +4,7 @@ from django.contrib.admin.utils import unquote
 from django.contrib.auth import get_user_model
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
 from django import forms
 from guardian import admin as guardian_admin
 from image_cropping import ImageCroppingMixin
@@ -110,6 +111,21 @@ class ResourceEquipmentAdmin(PopulateCreatedAndModifiedMixin, CommonExcludeMixin
 
 
 class ReservationAdmin(PopulateCreatedAndModifiedMixin, CommonExcludeMixin, admin.ModelAdmin):
+    list_filter = ['created_at', 'resource__unit',  'begin', 'state']
+    list_display = ['created_at', 'resource_name', 'resource_unit', 'begin', 'end', 'state']
+    exclude = CommonExcludeMixin.exclude + ('has_been_anonymized',)
+
+    def resource_name(self, reservation):
+        return reservation.resource.name
+    resource_name.short_description = _("Resource")
+    resource_name.admin_order_field = "resource__name"
+
+    def resource_unit(self, reservation):
+        return reservation.resource.unit
+    resource_unit.short_description = _("Unit")
+    resource_unit.admin_order_field = "resource__unit"
+
+
     def get_readonly_fields(self, request, obj=None):
         if obj:
             read_only_fields = list(super().get_readonly_fields(request, obj))
